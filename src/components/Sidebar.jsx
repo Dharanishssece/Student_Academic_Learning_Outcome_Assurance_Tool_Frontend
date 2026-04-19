@@ -16,6 +16,7 @@ const facultyLinks = [
   { to: '/faculty/create-assessment', label: 'Create Assessment', icon: '📝' },
   { to: '/faculty/upload-marks', label: 'Upload Marks', icon: '📈' },
   { to: '/faculty/outcome-analysis', label: 'Outcome Analysis', icon: '📉' },
+  { to: '/faculty/certificates', label: 'Student Certificates', icon: '📄' },
 ];
 
 const studentLinks = [

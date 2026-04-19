@@ -17,11 +17,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 globally
+// Handle 401 globally — but NOT on the login endpoint itself
+// (a failed login returns 401 "Invalid email or password" which
+//  must surface as an error message, not cause a page redirect)
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const isLoginEndpoint = err.config?.url?.includes('/api/auth/login');
+    if (err.response?.status === 401 && !isLoginEndpoint) {
       localStorage.removeItem('salo_user');
       window.location.href = '/login';
     }

@@ -77,8 +77,140 @@ export default function FacultyDashboard() {
               </div>
             )}
           </div>
+
+          {/* ── Student Certificates ── */}
+          <StudentCertificates />
         </div>
       )}
     </Layout>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   Student Certificates sub-component
+   – fetched fresh on mount, filterable by name / course
+───────────────────────────────────────────── */
+function StudentCertificates() {
+  const [certs, setCerts] = useState([]);
+  const [certsLoading, setCertsLoading] = useState(true);
+  const [filter, setFilter] = useState('');
+
+  useEffect(() => {
+    api.get('/api/faculty/certificates')
+      .then(r => setCerts(r.data))
+      .catch(() => setCerts([]))
+      .finally(() => setCertsLoading(false));
+  }, []);
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+  const filtered = certs.filter(cert => {
+    const q = filter.toLowerCase();
+    return (
+      cert.studentName?.toLowerCase().includes(q) ||
+      cert.studentEmail?.toLowerCase().includes(q) ||
+      cert.course?.toLowerCase().includes(q) ||
+      cert.certificateTitle?.toLowerCase().includes(q)
+    );
+  });
+
+  return (
+    <div className="card">
+      {/* Header row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-violet-600/20 flex items-center justify-center text-lg">🎓</div>
+          <h3 className="text-lg font-semibold text-white">Student Certificates</h3>
+          {!certsLoading && (
+            <span className="badge-blue">{certs.length} total</span>
+          )}
+        </div>
+        {/* Filter input */}
+        <input
+          type="text"
+          placeholder="Filter by name, email or course…"
+          value={filter}
+          onChange={e => setFilter(e.target.value)}
+          className="input-field sm:w-72 text-sm py-2"
+        />
+      </div>
+
+      {/* Loading state */}
+      {certsLoading ? (
+        <div className="flex items-center justify-center py-10">
+          <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : filtered.length === 0 ? (
+        /* Empty state */
+        <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+          <span className="text-4xl">📭</span>
+          <p className="text-slate-300 font-medium">
+            {filter ? 'No certificates match your filter.' : 'No certificates uploaded yet.'}
+          </p>
+          <p className="text-slate-500 text-sm">Students can upload certificates from their dashboard.</p>
+        </div>
+      ) : (
+        /* Table */
+        <div className="overflow-x-auto rounded-xl">
+          <table className="w-full min-w-[640px]">
+            <thead>
+              <tr className="border-b border-slate-700/60">
+                <th className="table-header py-3 px-4 text-left">#</th>
+                <th className="table-header py-3 px-4 text-left">Student Name</th>
+                <th className="table-header py-3 px-4 text-left">Email</th>
+                <th className="table-header py-3 px-4 text-left">Course</th>
+                <th className="table-header py-3 px-4 text-left">Certificate Name</th>
+                <th className="table-header py-3 px-4 text-left">Uploaded Date</th>
+                <th className="table-header py-3 px-4 text-left">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((cert, idx) => (
+                <tr
+                  key={cert._id}
+                  className="border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors duration-150"
+                >
+                  <td className="table-cell text-slate-500">{idx + 1}</td>
+                  <td className="table-cell font-medium text-white">{cert.studentName}</td>
+                  <td className="table-cell text-slate-400">{cert.studentEmail}</td>
+                  <td className="table-cell">
+                    {cert.course ? (
+                      <span className="badge-blue">{cert.course}</span>
+                    ) : (
+                      <span className="text-slate-500 text-xs">—</span>
+                    )}
+                  </td>
+                  <td className="table-cell">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span>📄</span>
+                      <span className="truncate max-w-[160px]" title={cert.certificateTitle}>
+                        {cert.certificateTitle}
+                      </span>
+                    </span>
+                  </td>
+                  <td className="table-cell text-slate-400 whitespace-nowrap">
+                    {cert.createdAt
+                      ? new Date(cert.createdAt).toLocaleDateString('en-IN', {
+                          day: '2-digit', month: 'short', year: 'numeric',
+                        })
+                      : '—'}
+                  </td>
+                  <td className="table-cell">
+                    <a
+                      href={`${backendUrl}${cert.fileUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 active:scale-95"
+                    >
+                      👁️ View
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }

@@ -20,6 +20,7 @@ import CreateCLO from './pages/faculty/CreateCLO';
 import CreateAssessment from './pages/faculty/CreateAssessment';
 import UploadMarks from './pages/faculty/UploadMarks';
 import OutcomeAnalysis from './pages/faculty/OutcomeAnalysis';
+import FacultyCertificates from './pages/faculty/FacultyCertificates';
 
 // Student
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/faculty/create-assessment" element={<ProtectedRoute allowedRoles={['faculty']}><CreateAssessment /></ProtectedRoute>} />
           <Route path="/faculty/upload-marks" element={<ProtectedRoute allowedRoles={['faculty']}><UploadMarks /></ProtectedRoute>} />
           <Route path="/faculty/outcome-analysis" element={<ProtectedRoute allowedRoles={['faculty']}><OutcomeAnalysis /></ProtectedRoute>} />
+          <Route path="/faculty/certificates" element={<ProtectedRoute allowedRoles={['faculty']}><FacultyCertificates /></ProtectedRoute>} />
 
           {/* Student */}
           <Route path="/student" element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
